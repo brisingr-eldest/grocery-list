@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grocery List</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module" defer src="supabase.js"></script>
+  <script type="module" defer src="app.js"></script>
+  <style type="text/tailwindcss">
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-hide {
+      -ms-overflow-style: none; /* IE and Edge */
+      scrollbar-width: none; /* Firefox */
+    }
+    </style>
+
+</head>
+<body class="bg-stone-50 text-stone-800">
+  <main class="pt-4 pb-16 md:pb-4 px-4">
+    <!-- List View -->
+    <section id="view-list" class="tab-view block">
+      <div id="suggested-items" class="mb-4 whitespace-nowrap overflow-x-auto [-webkit-overflow-scrolling:touch] scrollbar-hide">
+        <div class="inline-block py-1 px-3 bg-stone-700 text-stone-50 rounded-full">+ Milk</div>
+        <div class="inline-block ml-1 py-1 px-3 bg-stone-700 text-stone-50 rounded-full">+ Laundry Detergent</div>
+        <div class="inline-block ml-1 py-1 px-3 bg-stone-700 text-stone-50 rounded-full">+ Toothpaste</div>
+        <div class="inline-block ml-1 py-1 px-3 bg-stone-700 text-stone-50 rounded-full">+ Surprise Sale Fruit</div>
+      </div>
+      <div class="mb-6 p-4 bg-white rounded-xl border">
+        <h2 class="text-2xl font-semibold mb-2">List</h2>
+        <div class="divide-y">
+          <!-- Example item -->
+          <div class="flex items-center justify-between gap-4 py-2">
+            <!-- Left section: checkbox + text + category/subcategory -->
+            <label class="flex items-center gap-3 cursor-pointer">
+              <!-- Hidden checkbox -->
+              <input type="checkbox" class="sr-only peer">
+
+              <!-- Custom checkbox -->
+              <div class="w-6 h-6 rounded-full border border-stone-300 flex items-center justify-center 
+                          peer-checked:bg-stone-600 peer-checked:border-stone-600 transition">
+                <!-- Checkmark icon -->
+                <svg class="w-3 h-3 text-white scale-100 peer-checked:scale-100" 
+                    fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                  <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+
+              <!-- Item text and tags -->
+              <div>
+                <div class="font-medium text-gray-800">Bananas</div>
+                <div class="flex flex-wrap gap-1 mt-0.5">
+                  <span class="text-xs px-2 py-0.5 bg-gray-100 border rounded-full text-gray-600">Grocery</span>
+                  <span class="text-xs px-2 py-0.5 bg-gray-100 border rounded-full text-gray-600">Produce</span>
+                </div>
+              </div>
+            </label>
+
+            <!-- Remove button -->
+            <button class="text-xs text-stone-500 hover:text-red-600 transition" title="Remove from cart">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Example item -->
+          <div class="flex items-center justify-between gap-4 py-2">
+            <!-- Left section: checkbox + text + category/subcategory -->
+            <label class="flex items-center gap-3 cursor-pointer">
+              <!-- Hidden checkbox -->
+              <input type="checkbox" class="sr-only peer">
+
+              <!-- Custom checkbox -->
+              <div class="w-6 h-6 rounded-full border border-stone-300 flex items-center justify-center 
+                          peer-checked:bg-stone-600 peer-checked:border-stone-600 transition">
+                <!-- Checkmark icon -->
+                <svg class="w-3 h-3 text-white scale-100 peer-checked:scale-100" 
+                    fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                  <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+
+              <!-- Item text and tags -->
+              <div>
+                <div class="font-medium text-gray-800">Apples</div>
+                <div class="flex flex-wrap gap-1 mt-0.5">
+                  <span class="text-xs px-2 py-0.5 bg-gray-100 border rounded-full text-gray-600">Grocery</span>
+                  <span class="text-xs px-2 py-0.5 bg-gray-100 border rounded-full text-gray-600">Produce</span>
+                </div>
+              </div>
+            </label>
+
+            <!-- Remove button -->
+            <button class="text-xs text-stone-500 hover:text-red-600 transition" title="Remove from cart">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Example item -->
+          <div class="flex items-center justify-between gap-4 py-2">
+            <!-- Left section: checkbox + text + category/subcategory -->
+            <label class="flex items-center gap-3 cursor-pointer">
+              <!-- Hidden checkbox -->
+              <input type="checkbox" class="sr-only peer">
+
+              <!-- Custom checkbox -->
+              <div class="w-6 h-6 rounded-full border border-stone-300 flex items-center justify-center 
+                          peer-checked:bg-stone-600 peer-checked:border-stone-600 transition">
+                <!-- Checkmark icon -->
+                <svg class="w-3 h-3 text-white scale-100 peer-checked:scale-100" 
+                    fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                  <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+
+              <!-- Item text and tags -->
+              <div>
+                <div class="font-medium text-gray-800">Grapes</div>
+                <div class="flex flex-wrap gap-1 mt-0.5">
+                  <span class="text-xs px-2 py-0.5 bg-gray-100 border rounded-full text-gray-600">Grocery</span>
+                  <span class="text-xs px-2 py-0.5 bg-gray-100 border rounded-full text-gray-600">Produce</span>
+                </div>
+              </div>
+            </label>
+
+            <!-- Remove button -->
+            <button class="text-xs text-stone-500 hover:text-red-600 transition" title="Remove from cart">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-6 p-4 bg-white rounded-xl border">
+        <h2 class="text-2xl font-semibold mb-2">Cart</h2>
+        <div class="divide-y">
+          <!-- Example cart item -->
+          <div class="flex items-center gap-3 py-2">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" class="sr-only peer" checked>
+
+              <div class="w-6 h-6 rounded-full border border-stone-300 flex items-center justify-center 
+                          peer-checked:bg-stone-600 peer-checked:border-stone-600 transition">
+                <svg class="w-3 h-3 text-white scale-100 peer-checked:scale-100" 
+                    fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                  <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="font-medium text-gray-800">Coffee</div>
+            </label>
+          </div>
+
+          <div class="flex items-center gap-3 py-2">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" class="sr-only peer" checked>
+
+              <div class="w-6 h-6 rounded-full border border-stone-300 flex items-center justify-center 
+                          peer-checked:bg-stone-600 peer-checked:border-stone-600 transition">
+                <svg class="w-3 h-3 text-white scale-100 peer-checked:scale-100" 
+                    fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                  <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="font-medium text-gray-800">Cereal</div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Items View -->
+    <section id="view-items" class="tab-view hidden">
+      <div class="flex items-center gap-2 mb-4">
+        <input 
+          id="search" 
+          type="search" 
+          placeholder="Search or add item" 
+          class="flex-1 px-3 py-2 bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring focus:ring-stone-200"
+        />
+        <button 
+          id="add-item" 
+          class="w-10 h-10 rounded-lg bg-white text-stone-900 shadow-sm ring-1 ring-stone-300 hover:bg-stone-100 transition flex items-center justify-center"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+      </div>
+      <div id="items-list">
+        <ul class="space-y-2">
+          <li class="flex items-center justify-between p-3 bg-white border rounded-lg">
+            <div>
+              <div class="font-medium">Milk</div>
+              <div class="mt-1 flex flex-wrap gap-1 text-sm">
+                <span class="px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">Grocery</span>
+                <span class="px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">Dairy</span>
+              </div>
+            </div>
+            <!-- Add -->
+            <button class="inline-flex items-center gap-1 px-2 py-1 text-sm text-green-700 border border-green-200 rounded-lg hover:bg-green-100 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                  viewBox="0 0 24 24">
+                <path d="M12 4v16m8-8H4" />
+              </svg>
+              Add
+            </button>
+          </li>
+
+          <!-- In cart -->
+          <li class="w-full flex items-center justify-between p-3 bg-white border rounded-lg">
+            <div>
+              <div class="font-medium">Coffee</div>
+              <div class="my-1 flex flex-wrap gap-1 text-sm">
+                <span class="px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">Grocery</span>
+                <span class="px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">Beverages</span>
+              </div>
+              <p class="text-xs">Make sure to get dark roast.</p>
+            </div>
+            <!-- Remove -->
+            <button class="inline-flex items-center gap-1 px-2 py-1 text-sm text-red-700 border border-red-200 rounded-lg hover:bg-red-100 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                  viewBox="0 0 24 24">
+                <path d="M20 12H4" />
+              </svg>
+              Remove
+            </button>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal Backdrop -->
+  <div id="addItemModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <!-- Modal Content -->
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md m-4 p-6">
+      <h2 id="modalTitle" class="text-xl font-semibold mb-4">Add New Item</h2>
+      
+      <form id="addItemForm" class="space-y-4">
+        <!-- Name -->
+        <div>
+          <label class="block font-medium mb-1">Name</label>
+          <input type="text" id="itemName" class="w-full border rounded px-3 py-2" required />
+        </div>
+
+        <!-- Category -->
+        <div>
+          <label class="block font-medium mb-1">Category</label>
+          <select id="itemCategory" class="w-full border rounded px-3 py-2">
+            <option value="">Select a category</option>
+          </select>
+        </div>
+
+        <!-- Subcategory (conditionally visible) -->
+        <div id="subcategoryWrapper" class="hidden">
+          <label class="block font-medium mb-1">Subcategory</label>
+          <select id="itemSubcategory" class="w-full border rounded px-3 py-2">
+            <option value="">Select a subcategory</option>
+          </select>
+        </div>
+
+        <!-- Purchase Interval -->
+        <div>
+          <label class="inline-flex items-center gap-2">
+            <input type="checkbox" id="enableInterval" class="form-checkbox" />
+            Set purchase interval
+          </label>
+        </div>
+
+        <!-- Interval Inputs (conditional) -->
+        <div id="intervalInputs" class="hidden flex gap-2 items-end">
+          <div class="flex-1">
+            <label class="block font-medium mb-1">Interval</label>
+            <input type="number" id="intervalNumber" class="w-full border rounded px-3 py-2" min="1" />
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Unit</label>
+            <select id="intervalUnit" class="border rounded px-3 py-2">
+              <option value="days">Days</option>
+              <option value="weeks">Weeks</option>
+              <option value="months">Months</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div>
+          <label class="block font-medium mb-1">Notes</label>
+          <textarea id="itemNotes" class="w-full border rounded px-3 py-2" rows="3"></textarea>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" id="cancelAddItem" class="text-gray-600 hover:underline">Cancel</button>
+          <button id="submitBtn" type="submit" class="bg-stone-600 text-white px-4 py-2 rounded-lg hover:bg-stone-700">Add Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <nav class="fixed bottom-0 left-0 right-0 z-10 flex justify-center gap-4 bg-stone-50 border-t border-stone-200 py-3 px-6 md:hidden rounded-t-xl shadow-inner">
+    <button data-tab="list" class="tab-btn px-6 py-2 rounded-xl bg-white text-stone-900 font-semibold shadow-sm ring-1 ring-stone-200 transition hover:bg-stone-100">
+      List
+    </button>
+    <button data-tab="items" class="tab-btn px-6 py-2 rounded-xl text-stone-500 font-semibold hover:text-stone-900 transition">
+      Items
+    </button>
+  </nav>
+</body>
+</html>
