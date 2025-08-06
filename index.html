@@ -20,6 +20,7 @@
 </head>
 <body class="bg-stone-50 text-stone-800">
   <main class="pt-4 pb-16 md:pb-4 px-4">
+    <div id="main-heading" class="text-3xl text-stone-800 font-bold mb-2">Grocery List</div>
     <!-- List View -->
     <section id="view-list" class="tab-view block">
       <div id="suggested-items" class="mb-4 whitespace-nowrap overflow-x-auto [-webkit-overflow-scrolling:touch] scrollbar-hide">
@@ -30,7 +31,7 @@
       </div>
       <div class="mb-6 p-4 bg-white rounded-xl border">
         <h2 class="text-2xl font-semibold mb-2">List</h2>
-        <div class="divide-y">
+        <div id="listContainer" class="divide-y">
           <!-- Example item -->
           <div class="flex items-center justify-between gap-4 py-2">
             <!-- Left section: checkbox + text + category/subcategory -->
@@ -140,7 +141,7 @@
 
       <div class="mb-6 p-4 bg-white rounded-xl border">
         <h2 class="text-2xl font-semibold mb-2">Cart</h2>
-        <div class="divide-y">
+        <div id="cartContainer" class="divide-y">
           <!-- Example cart item -->
           <div class="flex items-center gap-3 py-2">
             <label class="flex items-center gap-3 cursor-pointer">
@@ -173,11 +174,15 @@
           </div>
         </div>
       </div>
+
+      <div id="cart-clear-wrapper" class="flex justify-center mt-4">
+        <!-- button injected by JS -->
+      </div>
     </section>
 
     <!-- Items View -->
     <section id="view-items" class="tab-view hidden">
-      <div class="flex items-center gap-2 mb-4">
+      <div class="flex items-center gap-2 mt-6 mb-4">
         <input 
           id="search" 
           type="search" 
@@ -269,9 +274,16 @@
 
         <!-- Purchase Interval -->
         <div>
-          <label class="inline-flex items-center gap-2">
-            <input type="checkbox" id="enableInterval" class="form-checkbox" />
-            Set purchase interval
+          <label class="flex items-center gap-3 cursor-pointer select-none mt-4">
+            <input type="checkbox" id="enableInterval" class="sr-only peer">
+            <div class="w-5 h-5 rounded-full border border-stone-300 flex items-center justify-center 
+                        peer-checked:bg-stone-600 peer-checked:border-stone-600 transition">
+              <svg class="w-3 h-3 text-white scale-100 peer-checked:scale-100" 
+                  fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <span class="text-sm text-gray-800">Set Purchase Interval</span>
           </label>
         </div>
 
@@ -294,11 +306,27 @@
         <!-- Notes -->
         <div>
           <label class="block font-medium mb-1">Notes</label>
-          <textarea id="itemNotes" class="w-full border rounded px-3 py-2" rows="3"></textarea>
+          <textarea id="itemNotes" class="w-full border rounded px-3 py-2" rows="2"></textarea>
         </div>
+
+        <label class="flex items-center gap-3 cursor-pointer select-none mt-4">
+          <input type="checkbox" id="addToListCheckbox" class="sr-only peer">
+          <div class="w-5 h-5 rounded-full border border-stone-300 flex items-center justify-center 
+                      peer-checked:bg-stone-600 peer-checked:border-stone-600 transition">
+            <svg class="w-3 h-3 text-white scale-100 peer-checked:scale-100" 
+                fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="text-sm text-gray-800">Add to List</span>
+        </label>
+
 
         <!-- Buttons -->
         <div class="flex justify-end gap-3 pt-4">
+          <!-- Only shown during editing -->
+          <button id="deleteItemBtn" class="mr-auto text-sm text-red-700 border border-red-200 rounded-lg px-3 py-1 hover:bg-red-100 transition hidden">Delete Item</button>
+
           <button type="button" id="cancelAddItem" class="text-gray-600 hover:underline">Cancel</button>
           <button id="submitBtn" type="submit" class="bg-stone-600 text-white px-4 py-2 rounded-lg hover:bg-stone-700">Add Item</button>
         </div>

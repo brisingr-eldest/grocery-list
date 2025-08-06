@@ -24,6 +24,9 @@ const subcategoryWrapper = document.getElementById('subcategoryWrapper');
 const purchaseRepeatCheckbox = document.getElementById('enableInterval');
 const intervalWrapper = document.getElementById('intervalInputs');
 
+const addToListCheckbox = document.getElementById('addToListCheckbox');
+
+const deleteItemBtn = document.getElementById('deleteItemBtn');
 const addItemForm = document.getElementById('addItemForm');
 
 let allItems = [];
@@ -39,6 +42,8 @@ async function fetchItemsWithCategories() {
       notes,
       on_list,
       in_cart,
+      last_purchased,
+      purchase_interval_days,
       category:category_id ( id, name ),
       subcategory:subcategory_id ( id, name )
     `)
@@ -58,26 +63,174 @@ async function fetchItemsWithCategories() {
     subcategory: item.subcategory?.name || '',
     on_list: item.on_list,
     in_cart: item.in_cart,
+    last_purchased: item.last_purchased, // may be null
+    purchase_interval_days: item.purchase_interval_days, // may be null
   }));
 
   renderItems(allItems);
+  renderListView();
+  renderSuggestedBar();
+  renderClearCartButton();
+}
+
+function renderListView() {
+  const listContainer = document.getElementById('listContainer');
+  const cartContainer = document.getElementById('cartContainer');
+
+  listContainer.innerHTML = '';
+  cartContainer.innerHTML = '';
+
+  const listItems = allItems
+    .filter(i => i.on_list && !i.in_cart)
+    .sort((a, b) => {
+      const catA = a.category?.toLowerCase() || '';
+      const catB = b.category?.toLowerCase() || '';
+      if (catA !== catB) return catA.localeCompare(catB);
+
+      const subA = a.subcategory?.toLowerCase() || '';
+      const subB = b.subcategory?.toLowerCase() || '';
+      if (subA !== subB) return subA.localeCompare(subB);
+
+      const nameA = a.name?.toLowerCase() || '';
+      const nameB = b.name?.toLowerCase() || '';
+      return nameA.localeCompare(nameB);
+    });
+
+  const cartItems = allItems.filter(i => i.on_list && i.in_cart);
+
+  // ---- List section ----
+  if (listItems.length === 0) {
+    const listEmptyMessage = cartItems.length > 0
+      ? 'All done! Great work!'
+      : 'Nothing on your list yet.';
+
+    listContainer.innerHTML = `
+      <div class="flex flex-col text-stone-500">
+        <p class="mb-4 italic">${listEmptyMessage}</p>
+        <button id="goToItemsBtn" class="inline-block self-center px-4 py-2 bg-stone-700 text-stone-50 rounded-lg hover:bg-stone-600 transition">
+          Add Items
+        </button>
+      </div>
+    `;
+  } else {
+    for (const item of listItems) {
+      listContainer.insertAdjacentHTML('beforeend', renderListViewItem(item, false));
+    }
+  }
+
+  // ---- Cart section ----
+  if (cartItems.length === 0) {
+    const cartEmptyMessage = listItems.length === 0
+      ? 'Nothing in the cart. Add some items to the list to get started.'
+      : 'Nothing in the cart. Let’s go shopping!';
+
+    cartContainer.innerHTML = `
+      <div class="text-stone-500">
+        <p class="italic">${cartEmptyMessage}</p>
+      </div>
+    `;
+  } else {
+    for (const item of cartItems) {
+      cartContainer.insertAdjacentHTML('beforeend', renderListViewItem(item, true));
+    }
+  }
+
+  // ---- Wire up Add Items button ----
+  const goToItemsBtn = document.getElementById('goToItemsBtn');
+  if (goToItemsBtn) {
+    goToItemsBtn.addEventListener('click', () => {
+      const itemsTabBtn = document.querySelector('[data-tab="items"]');
+      itemsTabBtn?.click();
+    });
+  }
+}
+
+function renderListViewItem(item, isCart) {
+  const categoryObj = categories.find(c => c.name === item.category);
+  const subcategoryObj = categories.find(c => c.name === item.subcategory);
+
+  const categoryTag = item.category
+    ? `<span class="text-sm leading-tight px-2 pt-[0.2rem] pb-[0.25rem] rounded-full ${categoryObj?.colors || 'bg-gray-100 text-gray-700'}">${item.category}</span>`
+    : '';
+
+  const subcategoryTag = item.subcategory
+    ? `<span class="text-sm leading-tight px-2 pt-[0.2rem] pb-[0.25rem] rounded-full ${subcategoryObj?.colors || 'bg-gray-100 text-gray-700'}">${item.subcategory}</span>`
+    : '';
+
+  // Cart item: only checkbox + name
+  if (isCart) {
+    return `
+      <div class="flex items-center justify-between gap-4 py-2" data-id="${item.id}">
+        <div class="flex items-center gap-3 flex-1 cursor-pointer">
+          <div class="flex-shrink-0">
+            <label class="flex items-center cursor-pointer">
+              <input type="checkbox" class="sr-only peer" ${item.in_cart ? 'checked' : ''}>
+              <div class="custom-checkbox w-6 h-6 rounded-full border border-stone-300 flex items-center justify-center 
+                          peer-checked:bg-stone-600 peer-checked:border-stone-600 transition">
+                <svg class="w-3 h-3 text-white scale-100 peer-checked:scale-100" 
+                    fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                  <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </label>
+          </div>
+          <div class="font-medium text-gray-800">${item.name}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // List item: checkbox + name + badges + notes + remove
+  return `
+    <div class="flex items-center justify-between gap-4 py-2" data-id="${item.id}">
+      <div class="flex items-center gap-3 flex-1 cursor-pointer">
+        <div class="flex-shrink-0">
+          <label class="flex items-center cursor-pointer">
+            <input type="checkbox" class="sr-only peer" ${item.in_cart ? 'checked' : ''}>
+            <div class="custom-checkbox w-6 h-6 rounded-full border border-stone-300 flex items-center justify-center 
+                        peer-checked:bg-stone-600 peer-checked:border-stone-600 transition">
+              <svg class="w-3 h-3 text-white scale-100 peer-checked:scale-100" 
+                  fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </label>
+        </div>
+        <div>
+          <div class="font-medium text-gray-800">${item.name}</div>
+          <div class="flex flex-wrap gap-1 mt-0.5">
+            ${categoryTag}
+            ${subcategoryTag}
+          </div>
+          ${item.notes ? `<div class="text-sm mt-1 line-clamp-2 text-gray-600">${item.notes}</div>` : ''}
+        </div>
+      </div>
+      <button class="text-xs text-stone-500 hover:text-red-600 transition remove-btn" title="Remove from list">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  `;
 }
 
 function renderItems(items) {
   itemsList.innerHTML = items.map(item => {
     const categoryName = typeof item.category === 'object' ? item.category?.name : item.category || 'Uncategorized';
     const subcategoryName = typeof item.subcategory === 'object' ? item.subcategory?.name : item.subcategory || '';
+    const categoryObj = categories.find(c => c.name === categoryName);
+    const subcategoryObj = categories.find(c => c.name === subcategoryName);
 
     return `
       <li data-id="${item.id}" class="flex items-center justify-between mb-2 p-3 bg-white border rounded-lg cursor-pointer">
         <div>
           <div class="font-medium">${item.name}</div>
           <div class="mt-1 flex flex-wrap gap-1 text-sm">
-            <span class="category-badge px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">${categoryName}</span>
+            <span class="category-badge leading-tight px-2 pt-[0.2rem] pb-[0.25rem] rounded-full ${categoryObj?.colors || 'bg-stone-200 text-stone-700'}">${categoryName}</span>
             ${subcategoryName
-              ? `<span class="category-badge px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">${subcategoryName}</span>`
+              ? `<span class="category-badge leading-tight px-2 pt-[0.2rem] pb-[0.25rem] rounded-full ${subcategoryObj?.colors || 'bg-stone-200 text-stone-700'}">${subcategoryName}</span>`
               : ''}
-          </div>
+            </div>
           ${item.notes ? `<div class="text-sm mt-1 line-clamp-2">${item.notes}</div>` : ''}
         </div>
         ${item.on_list
@@ -105,10 +258,62 @@ function renderItems(items) {
   }).join('');
 }
 
+function daysSince(dateStr) {
+  if (!dateStr) return Infinity;
+  const last = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now - last;
+  return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+}
+
+function getSuggestedItems() {
+  return allItems.filter(item => {
+    if (item.on_list) return false; // already on list
+    if (!item.purchase_interval_days || item.purchase_interval_days <= 0) return false;
+    // need last_purchased to exist, otherwise treat as very overdue? spec implies based on last_purchased
+    if (!item.last_purchased) return false;
+
+    const elapsed = daysSince(item.last_purchased);
+    // suggest when elapsed is >= purchase_interval_days - 3
+    return elapsed >= Math.max(0, item.purchase_interval_days - 3);
+  });
+}
+
+function renderSuggestedBar() {
+  const container = document.getElementById('suggested-items');
+  const suggestions = getSuggestedItems();
+
+  if (suggestions.length === 0) {
+    container.innerHTML = ''; // or placeholder if you want
+    return;
+  }
+
+  container.innerHTML = suggestions.map(item => `
+    <div data-suggest-id="${item.id}" class="inline-block py-1 px-3 bg-stone-700 text-stone-50 rounded-full cursor-pointer hover:bg-stone-800 transition">
+      + ${item.name}
+    </div>
+  `).join('');
+}
+
+function renderClearCartButton() {
+  const wrapper = document.getElementById('cart-clear-wrapper');
+  const cartItems = allItems.filter(i => i.on_list && i.in_cart);
+  if (cartItems.length === 0) {
+    wrapper.innerHTML = '';
+    return;
+  }
+  wrapper.innerHTML = `
+    <button id="clear-cart-btn" class="mt-2 mx-auto inline-flex justify-center gap-2 px-4 py-2 bg-stone-700 text-stone-50 rounded-lg hover:bg-stone-600 font-medium">
+      Clear Cart
+    </button>
+  `;
+}
+
+
 async function loadCategories() {
   const { data, error } = await supabase
     .from('categories')
-    .select('id, name, parent_id');
+    .select('id, name, parent_id, colors');
 
   if (error) {
     console.error('Error loading categories:', error.message);
@@ -173,6 +378,9 @@ function openEditModal(item) {
     document.getElementById('intervalUnit').value = 'days';
   }
 
+  addToListCheckbox.checked = item.on_list ?? false;
+  deleteItemBtn.classList.remove('hidden');
+
   currentEditItemId = item.id;
 }
 
@@ -205,25 +413,46 @@ function toTitleCase(str) {
 
 tabButtons.forEach(button => {
   button.addEventListener('click', () => {
-    // Remove active styling from all buttons
+    const selectedTab = button.dataset.tab;
+
+    // Update tab UI
     tabButtons.forEach(btn => {
       btn.classList.remove('bg-white', 'text-stone-900', 'shadow-sm', 'ring-1', 'ring-stone-200');
       btn.classList.add('text-stone-500');
     });
-
-    // Add active styling to clicked button
     button.classList.add('bg-white', 'text-stone-900', 'shadow-sm', 'ring-1', 'ring-stone-200');
     button.classList.remove('text-stone-500');
 
-    // Hide all tab contents
     Object.values(tabContents).forEach(el => el.classList.add('hidden'));
-
-    // Show the selected tab
-    const selectedTab = button.dataset.tab;
     tabContents[selectedTab].classList.remove('hidden');
+
+    // Update URL without reloading
+    const newUrl = new URL(window.location);
+    newUrl.searchParams.set('tab', selectedTab);
+    window.history.replaceState({}, '', newUrl);
 
     fetchItemsWithCategories();
   });
+});
+
+document.getElementById('suggested-items').addEventListener('click', async (e) => {
+  const pill = e.target.closest('.suggestion-pill');
+  if (!pill) return;
+
+  const itemId = pill.dataset.id;
+  try {
+    const { error } = await supabase
+      .from('items')
+      .update({ on_list: true, in_cart: false })
+      .eq('id', itemId);
+    if (error) {
+      console.error('Error adding suggested item to list:', error.message);
+    } else {
+      await fetchItemsWithCategories(); // will re-render everything including suggested bar
+    }
+  } catch (err) {
+    console.error('Unexpected error adding suggested item:', err);
+  }
 });
 
 searchInput.addEventListener('input', () => {
@@ -243,7 +472,7 @@ addItemBtn.addEventListener('click', () => {
     const titleCased = toTitleCase(searchValue);
     itemNameInput.value = titleCased;
 
-    setInterval(() => {
+    setTimeout(() => {
       itemNameInput.focus();
       itemNameInput.select();
     }, 10);
@@ -251,6 +480,9 @@ addItemBtn.addEventListener('click', () => {
   } else {
     itemNameInput.value = '';
   }
+
+  addToListCheckbox.checked = true; // default to checked for new items
+  deleteItemBtn.classList.add('hidden');
 
   addItemModal.classList.remove('hidden');
 
@@ -263,6 +495,32 @@ addItemModal.addEventListener('click', (e) => {
 });
 
 cancelAddItem.addEventListener('click', closeModal);
+
+deleteItemBtn.addEventListener('click', async () => {
+  if (!currentEditItemId) return;
+
+  const confirmed = confirm('Are you sure you want to delete this item? This cannot be undone.');
+
+  if (!confirmed) return;
+
+  try {
+    const { error } = await supabase
+      .from('items')
+      .delete()
+      .eq('id', currentEditItemId);
+
+    if (error) {
+      console.error('Error deleting item:', error.message);
+      alert('Could not delete item.');
+    } else {
+      closeModal();
+      await fetchItemsWithCategories();
+    }
+  } catch (err) {
+    console.error('Unexpected error deleting item:', err);
+    alert('Unexpected error. Check console.');
+  }
+});
 
 categorySelect.addEventListener('change', () => {
   const selectedId = categorySelect.value;
@@ -319,6 +577,8 @@ addItemForm.addEventListener('submit', async (e) => {
     notes,
     purchase_interval_days,
     is_archived: false,
+    on_list: addToListCheckbox.checked,
+    in_cart: false,
   };
 
   try {
@@ -426,4 +686,112 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await fetchItemsWithCategories();
   loadCategories();
+
+  // Show tab from URL param, or default to 'list'
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialTab = urlParams.get('tab') || 'list';
+  const tabButton = document.querySelector(`[data-tab="${initialTab}"]`);
+  tabButton?.click();
+});
+
+document.getElementById('view-list').addEventListener('click', async (e) => {
+  // Clear Cart button (no per-item row needed)
+  if (e.target.closest('#clear-cart-btn')) {
+    const cartItems = allItems.filter(i => i.on_list && i.in_cart);
+    if (cartItems.length === 0) return;
+
+    const ids = cartItems.map(i => i.id);
+    try {
+      const { error } = await supabase
+        .from('items')
+        .update({
+          in_cart: false,
+          on_list: false,
+          last_purchased: new Date().toISOString()
+        })
+        .in('id', ids);
+      if (error) {
+        console.error('Error clearing cart:', error.message);
+      } else {
+        await fetchItemsWithCategories();
+      }
+    } catch (err) {
+      console.error('Unexpected error clearing cart:', err);
+    }
+    return;
+  }
+
+  // Clicked a suggested item
+  const suggested = e.target.closest('[data-suggest-id]');
+  if (suggested) {
+    const itemId = suggested.dataset.suggestId;
+    try {
+      const { error } = await supabase
+        .from('items')
+        .update({ on_list: true, in_cart: false })
+        .eq('id', itemId);
+      if (error) {
+        console.error('Error adding suggested item:', error.message);
+      } else {
+        await fetchItemsWithCategories();
+      }
+    } catch (err) {
+      console.error('Unexpected error adding suggested item:', err);
+    }
+    return; // prevent edit modal from opening
+  }
+
+
+  // Per-item interactions: need to find the closest row with data-id
+  const itemRow = e.target.closest('[data-id]');
+  if (!itemRow) return;
+  const itemId = itemRow.dataset.id;
+
+  // Remove from list (the "x" button)
+  if (e.target.closest('.remove-btn')) {
+    try {
+      const { error } = await supabase
+        .from('items')
+        .update({ on_list: false, in_cart: false })
+        .eq('id', itemId);
+      if (error) {
+        console.error('Error removing item from list:', error.message);
+      } else {
+        await fetchItemsWithCategories();
+      }
+    } catch (err) {
+      console.error('Unexpected error removing item:', err);
+    }
+    return;
+  }
+
+  // Toggle in_cart via checkbox area (hidden input or styled box)
+  if (e.target.closest('input[type="checkbox"]') || e.target.closest('.custom-checkbox')) {
+    const item = allItems.find(i => i.id.toString() === itemId.toString());
+    if (!item) return;
+    const newCartValue = !item.in_cart;
+    try {
+      const { error } = await supabase
+        .from('items')
+        .update({ in_cart: newCartValue })
+        .eq('id', itemId);
+      if (error) {
+        console.error('Error toggling cart state:', error.message);
+      } else {
+        await fetchItemsWithCategories();
+      }
+    } catch (err) {
+      console.error('Unexpected error toggling cart state:', err);
+    }
+    return;
+  }
+
+  // Ignore clicks on badges (category/subcategory)
+  if (e.target.closest('.text-xs')) return;
+
+  // Otherwise: open edit modal
+  const item = allItems.find(i => i.id.toString() === itemId.toString());
+  if (item) {
+    openEditModal(item);
+  }
 });
