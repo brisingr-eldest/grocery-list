@@ -1,17 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-  
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="robots" content="noindex, nofollow" />
+
+  <title>Grocery List</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Mobile Web App -->
   <link rel="manifest" href="manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="robots" content="noindex, nofollow" />
-  <title>Grocery List</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- App Scripts -->
   <script type="module" defer src="supabase.js"></script>
   <script type="module" defer src="app.js"></script>
+
+  <!-- Custom Scrollbar Hiding -->
   <style type="text/tailwindcss">
     .scrollbar-hide::-webkit-scrollbar {
       display: none;
@@ -21,26 +29,40 @@
       scrollbar-width: none; /* Firefox */
     }
     </style>
-
 </head>
+
+
 <body class="bg-stone-50 text-stone-800">
-  <main class="md:pt-4 pb-16 md:pb-4 px-4">
-    <div id="main-heading" class="flex flex-row justify-between items-center h-28 pt-12 z-[9999] sticky top-0 bg-stone-50">
+  <main class="md:pt-4 pb-24 md:pb-4 px-4">
+
+    <!--========================-->
+    <!--  Main Heading Section  -->
+    <!--========================-->
+    <div id="main-heading" class="flex flex-row justify-between items-center w-[92vw] h-28 pt-12 z-[10] sticky top-0 bg-stone-50">
       <h1 class="text-3xl text-stone-800 font-bold mb-2">Grocery List</h1>
-      <button onclick="location.reload()" class="mr-2 text-2xl text-stone-800 rotate-90">&#x21bb;</button>
+      <button onclick="location.reload()" class="mr-6 text-2xl text-stone-800 rotate-90">&#x21bb;</button>
     </div>
-    <!-- List View -->
+
+
+    <!--========================-->
+    <!--     List View Tab      -->
+    <!--========================-->
     <section id="view-list" class="tab-view block">
+
+      <!-- Suggested Items -->
       <div id="suggested-items" class="mb-4 whitespace-nowrap overflow-x-auto [-webkit-overflow-scrolling:touch] scrollbar-hide">
         <div class="inline-block py-1 px-3 bg-stone-700 text-stone-50 rounded-full">+ Milk</div>
         <div class="inline-block ml-1 py-1 px-3 bg-stone-700 text-stone-50 rounded-full">+ Laundry Detergent</div>
         <div class="inline-block ml-1 py-1 px-3 bg-stone-700 text-stone-50 rounded-full">+ Toothpaste</div>
         <div class="inline-block ml-1 py-1 px-3 bg-stone-700 text-stone-50 rounded-full">+ Surprise Sale Fruit</div>
       </div>
+
+      <!-- List Section -->
       <div class="mb-6 p-4 bg-white rounded-xl border">
         <h2 class="text-2xl font-semibold mb-2">List</h2>
+
         <div id="listContainer" class="divide-y">
-          <!-- Example item -->
+          <!-- List item -->
           <div class="flex items-center justify-between gap-4 py-2">
             <!-- Left section: checkbox + text + category/subcategory -->
             <label class="flex items-center gap-3 cursor-pointer">
@@ -75,7 +97,7 @@
             </button>
           </div>
 
-          <!-- Example item -->
+          <!-- List item -->
           <div class="flex items-center justify-between gap-4 py-2">
             <!-- Left section: checkbox + text + category/subcategory -->
             <label class="flex items-center gap-3 cursor-pointer">
@@ -110,7 +132,7 @@
             </button>
           </div>
 
-          <!-- Example item -->
+          <!-- List item -->
           <div class="flex items-center justify-between gap-4 py-2">
             <!-- Left section: checkbox + text + category/subcategory -->
             <label class="flex items-center gap-3 cursor-pointer">
@@ -144,13 +166,17 @@
               </svg>
             </button>
           </div>
+
         </div>
       </div>
 
+      <!-- Cart Section -->
       <div class="mb-6 p-4 bg-white rounded-xl border">
         <h2 class="text-2xl font-semibold mb-2">Cart</h2>
+
         <div id="cartContainer" class="divide-y">
-          <!-- Example cart item -->
+
+          <!-- Cart Item -->
           <div class="flex items-center gap-3 py-2">
             <label class="flex items-center gap-3 cursor-pointer">
               <input type="checkbox" class="sr-only peer" checked>
@@ -166,6 +192,7 @@
             </label>
           </div>
 
+          <!-- Cart Item -->
           <div class="flex items-center gap-3 py-2">
             <label class="flex items-center gap-3 cursor-pointer">
               <input type="checkbox" class="sr-only peer" checked>
@@ -180,16 +207,23 @@
               <div class="font-medium text-gray-800">Cereal</div>
             </label>
           </div>
+
         </div>
       </div>
 
+      <!-- Clear Cart -->
       <div id="cart-clear-wrapper" class="flex justify-center mt-4">
         <!-- button injected by JS -->
       </div>
     </section>
 
-    <!-- Items View -->
+    
+    <!--========================-->
+    <!--     Items View Tab     -->
+    <!--========================-->
     <section id="view-items" class="tab-view hidden">
+
+      <!-- Search and Add -->
       <div class="flex items-center gap-2 mt-6 mb-4">
         <input 
           id="search" 
@@ -206,6 +240,8 @@
           </svg>
         </button>
       </div>
+
+      <!-- Items List -->
       <div id="items-list" class="pb-3">
         <ul class="space-y-2">
           <li class="flex items-center justify-between p-3 bg-white border rounded-lg">
@@ -251,7 +287,9 @@
 
   </main>
 
-  <!-- Modal Backdrop -->
+    <!--========================-->
+    <!--      Modal Form        -->
+    <!--========================-->
   <div id="addItemModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
     <!-- Modal Content -->
     <div class="bg-white rounded-xl shadow-xl w-full max-w-md m-4 p-6">
@@ -317,6 +355,7 @@
           <textarea id="itemNotes" class="w-full border rounded px-3 py-2" rows="2"></textarea>
         </div>
 
+        <!-- Add to List Checkbox -->
         <label class="flex items-center gap-3 cursor-pointer select-none mt-4">
           <input type="checkbox" id="addToListCheckbox" class="sr-only peer">
           <div class="w-5 h-5 rounded-full border border-stone-300 flex items-center justify-center 
@@ -342,7 +381,9 @@
     </div>
   </div>
 
-
+    <!--========================-->
+    <!-- Bottom Tab Navigation  -->
+    <!--========================-->
   <nav class="fixed bottom-0 left-0 right-0 z-10 flex justify-center gap-4 bg-stone-50 border-t border-stone-200 pt-3 pb-6 px-6 md:hidden rounded-t-xl shadow-inner">
     <button data-tab="list" class="tab-btn px-6 py-2 rounded-xl bg-white text-stone-900 font-semibold shadow-sm ring-1 ring-stone-200 transition hover:bg-stone-100">
       List

@@ -33,6 +33,8 @@ let allItems = [];
 
 let currentEditItemId = null;  // null means add mode, otherwise editing this ID
 
+let activeCategoryFilter = null;
+
 async function fetchItemsWithCategories() {
   const { data: items, error } = await supabase
     .from('items')
@@ -185,11 +187,11 @@ function renderListViewItem(item, isCart) {
     <div class="flex items-center justify-between gap-4 py-2" data-id="${item.id}">
       <div class="flex items-center gap-3 flex-1 cursor-pointer">
         <div class="flex-shrink-0">
-          <label class="flex items-center cursor-pointer">
+          <label class="flex items-center cursor-pointer relative z-0">
             <input type="checkbox" class="sr-only peer" ${item.in_cart ? 'checked' : ''}>
-            <div class="custom-checkbox w-6 h-6 rounded-full border border-stone-300 flex items-center justify-center 
+            <div class="custom-checkbox w-6 h-6 z-0 rounded-full border border-stone-300 flex items-center justify-center 
                         peer-checked:bg-stone-600 peer-checked:border-stone-600 transition">
-              <svg class="w-3 h-3 text-white scale-100 peer-checked:scale-100" 
+              <svg class="w-3 h-3 z-0 text-white scale-100 peer-checked:scale-100" 
                   fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                 <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
