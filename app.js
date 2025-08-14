@@ -479,6 +479,8 @@ addItemBtn.addEventListener('click', () => {
       itemNameInput.select();
     }, 10);
 
+    searchInput.value = '';
+
   } else {
     itemNameInput.value = '';
   }
@@ -797,3 +799,4 @@ document.getElementById('view-list').addEventListener('click', async (e) => {
     openEditModal(item);
   }
 });
+
